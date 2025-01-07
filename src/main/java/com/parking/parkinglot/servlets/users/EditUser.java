@@ -1,5 +1,6 @@
 package com.parking.parkinglot.servlets;
 
+import com.parking.parkinglot.common.UserDto;
 import com.parking.parkinglot.ejb.UserBean;
 import jakarta.inject.Inject;
 import jakarta.servlet.*;
@@ -7,33 +8,31 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.List;
+
 @ServletSecurity(value = @HttpConstraint(rolesAllowed = {"WRITE_USERS"}))
-@WebServlet(name = "AddUser", value = "/AddUser")
-public class AddUser extends HttpServlet {
+@WebServlet(name = "EditUser", value = "/EditUser")
+public class EditUser extends HttpServlet {
+    @Inject
+    UserBean userBean;
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("userGroups", new String[] {"READ_CARS", "WRITE_CARS",
-                "READ_USERS", "WRITE_USERS"});
-        request.getRequestDispatcher("/WEB-INF/pages/addUser.jsp").forward(request,
-                response);
-    }
+        Long userId = Long.parseLong(request.getParameter("id"));
+        UserDto user = userBean.findById(userId);
+        request.setAttribute("user", user);
 
-    @Inject
-    UserBean usersBean;
+
+
+        request.getRequestDispatcher("/WEB-INF/pages/users/editUser.jsp").forward(request, response);
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String username = request.getParameter("username");
         String email = request.getParameter("email");
-        String password = request.getParameter("password");
-        String[] userGroups =
-                request.getParameterValues("user_groups");
-        if (userGroups == null) {
-            userGroups = new String[0];
-        }
-        usersBean.createUser(username, email, password,
-                Arrays.asList(userGroups));
+        Long userId = Long.parseLong(request.getParameter("user_id"));
+
+        userBean.updateUser(userId, username, email);
         response.sendRedirect(request.getContextPath() + "/Users");
     }
 }

@@ -7,7 +7,9 @@
   <form method="post" action="${pageContext.request.contextPath}/Users">
     <c:if test="${pageContext.request.isUserInRole('WRITE_USERS')}">
       <a class="btn btn-primary btn-lg" href="${pageContext.request.contextPath}/AddUser">Add User</a>
-      <button type="submit" class="btn btn-secondary">Invoice</button>
+      <c:if test="${pageContext.request.isUserInRole('INVOICING')}">
+        <button type="submit" class="btn btn-secondary">Invoice</button>
+      </c:if>
     </c:if>
     <div class="container text-center">
       <c:forEach var="user" items="${users}">
@@ -20,6 +22,9 @@
           </div>
           <div class="col">
               ${user.email}
+          </div>
+          <div class="col">
+            <a class="btn btn-secondary" href="${pageContext.request.contextPath}/EditUser?id=${user.id}">Edit User</a>
           </div>
         </div>
       </c:forEach>
